@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tin học THCS – Học dễ hiểu</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f1f3fb;--card:#fff;--ink:#1b2140;--mute:#5d6485;--line:#d8dcf0;--accent:#4b5bd7;--accent-ink:#fff;--soft:#e6e9fb;--ok:#1f9d57;--bad:#d64545;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1226;--card:#181c36;--ink:#e8ebfb;--mute:#9aa2c8;--line:#2a3058;--accent:#8c98ff;--accent-ink:#0d1030;--soft:#222850;--ok:#4cc382;--bad:#ff7b7b}}
+:root[data-theme="dark"]{--bg:#0f1226;--card:#181c36;--ink:#e8ebfb;--mute:#9aa2c8;--line:#2a3058;--accent:#8c98ff;--accent-ink:#0d1030;--soft:#222850;--ok:#4cc382;--bad:#ff7b7b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+header{padding:28px 16px 10px;max-width:820px;margin:0 auto}
+h1{font-size:2rem;font-weight:800;margin:0;letter-spacing:-.02em}
+h2{font-size:1.35rem;margin:0 0 10px}
+h3{font-size:1.05rem;margin:0 0 6px}
+a{color:var(--accent);font-weight:600}
+.sub{color:var(--mute);margin:2px 0 0}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+nav div{max-width:820px;margin:0 auto;display:flex;gap:6px;overflow-x:auto}
+nav button{white-space:nowrap}
+main{max-width:820px;margin:0 auto;padding:16px 16px 56px;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 14px}
+button[aria-current="page"],button[aria-pressed="true"],button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+details{border-top:1px solid var(--line);padding:10px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:600}
+ul{margin:8px 0 0;padding-left:20px}
+li{margin:4px 0}
+.f{background:var(--soft);border-radius:10px;padding:8px 12px;margin:8px 0 4px;font-weight:600}
+.tag{display:inline-block;font-size:.78rem;padding:1px 9px;border-radius:99px;background:var(--soft);color:var(--accent);font-weight:600}
+input[type=search]{width:100%;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:8px}
+fieldset{border:0;padding:0;margin:0 0 14px}
+legend{font-weight:600;padding:0;margin-bottom:4px}
+.opt{display:flex;gap:8px;align-items:center;padding:3px 0;cursor:pointer}
+.opt input{width:18px;height:18px;accent-color:var(--accent)}
+.opt.ok{color:var(--ok);font-weight:600}.opt.bad{color:var(--bad);font-weight:600}
+.res{margin-top:10px;font-weight:600}
+.sol{color:var(--mute);margin:6px 0 0}
+.note{color:var(--mute);font-size:.9rem}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tin học THCS – Học dễ hiểu</h1>
+  <p class="sub">Tóm tắt kiến thức, câu hỏi luyện tập và bài tự luận cho Tin học lớp 6, 7, 8, 9.</p>
+</header>
+<nav aria-label="Mục chính"><div id="nv"></div></nav>
+<main id="mn"></main>
+
+<script>
+const $=id=>document.getElementById(id);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+/* ===== Dữ liệu: mỗi lớp gồm topics (kiến thức), qs (trắc nghiệm), tl (tự luận) ===== */
+const D={
+6:{topics:[
+["Thông tin, dữ liệu và máy tính",["Thông tin là những gì đem lại hiểu biết; dữ liệu là thông tin đã được đưa vào máy tính.","Máy tính lưu thông tin dưới dạng dãy bit gồm 0 và 1.","1 byte = 8 bit; 1 KB = 1024 byte.","Các thiết bị: vào (bàn phím, chuột), ra (màn hình, máy in), lưu trữ (ổ cứng, USB), xử lí (CPU)."],"Bit, byte, thiết bị vào, thiết bị ra, CPU"],
+["Mạng máy tính và Internet",["Mạng máy tính gồm các thiết bị đầu cuối, thiết bị kết nối và phần mềm.","Internet là mạng kết nối các mạng trên toàn cầu.","Trình duyệt dùng để xem trang web; công cụ tìm kiếm giúp tìm thông tin bằng từ khoá.","Thư điện tử có địa chỉ dạng tên@tên-miền."],"Mạng, Internet, trình duyệt, từ khoá, thư điện tử"],
+["Sơ đồ tư duy và soạn thảo văn bản",["Sơ đồ tư duy: ý chính ở giữa, các ý nhỏ toả ra thành nhánh.","Định dạng văn bản: phông chữ, cỡ chữ, màu chữ, căn lề.","Bảng giúp trình bày thông tin gọn, dễ so sánh."],"Sơ đồ tư duy, định dạng, bảng"],
+["Thuật toán",["Thuật toán là dãy hữu hạn các bước rõ ràng để giải quyết một bài toán.","Có thể biểu diễn bằng liệt kê các bước hoặc sơ đồ khối.","Ba cấu trúc cơ bản: tuần tự, rẽ nhánh (nếu…thì…), lặp."],"Thuật toán, sơ đồ khối, rẽ nhánh, lặp"]],
+qs:[
+["1 byte bằng bao nhiêu bit?",["4 bit","8 bit","10 bit","16 bit"],1,"1 byte = 8 bit."],
+["Thiết bị nào là thiết bị ra?",["Bàn phím","Chuột","Máy in","Micro"],2,"Máy in đưa thông tin ra khỏi máy tính."],
+["Máy tính biểu diễn thông tin bằng các chữ số nào?",["0 và 1","1 đến 9","0 đến 9","A và B"],0,"Dãy bit chỉ gồm 0 và 1."],
+["Cấu trúc “nếu … thì …” là cấu trúc nào?",["Tuần tự","Lặp","Rẽ nhánh","Nhập xuất"],2,"Tuỳ điều kiện mà chọn hướng thực hiện."],
+["Bộ phận nào được xem là “bộ não” của máy tính?",["Màn hình","CPU","Loa","Chuột"],1,"CPU xử lí thông tin và điều khiển hoạt động."],
+["Phần mềm dùng để xem trang web gọi là gì?",["Trình duyệt","Trình soạn thảo","Hệ điều hành","Phần mềm diệt virus"],0,"Ví dụ: Chrome, Edge, Firefox."],
+["Trong sơ đồ tư duy, ý chính được đặt ở đâu?",["Ở góc dưới","Ở giữa","Ở cuối cùng","Ở ngoài cùng"],1,"Các ý nhỏ toả ra từ ý chính ở giữa."],
+["Kí hiệu nào có trong địa chỉ thư điện tử?",["#","$","@","%"],2,"Ví dụ: ten@gmail.com."]],
+tl:[["Hãy viết các bước thuật toán pha một cốc nước chanh.","Gợi ý: chuẩn bị chanh, nước, đường → vắt chanh → thêm nước, đường → khuấy → nếm thử (chưa đủ ngọt thì thêm đường)."],
+["Kể tên 2 thiết bị vào, 2 thiết bị ra và 2 thiết bị lưu trữ.","Gợi ý: vào – bàn phím, chuột; ra – màn hình, loa; lưu trữ – USB, ổ cứng."]]},
+7:{topics:[
+["Thiết bị và bộ nhớ",["Bộ nhớ trong gồm RAM (mất dữ liệu khi tắt máy) và ROM.","Bộ nhớ ngoài: ổ cứng, USB, thẻ nhớ dùng để lưu trữ lâu dài.","Dung lượng đo bằng B, KB, MB, GB, TB."],"RAM, ROM, bộ nhớ ngoài, dung lượng"],
+["Phần mềm bảng tính",["Bảng tính gồm các hàng, cột; giao của hàng và cột là ô, có địa chỉ như A1, B3.","Công thức luôn bắt đầu bằng dấu =.","Hàm thường dùng: SUM (tổng), AVERAGE (trung bình), MAX, MIN, COUNT.","Dùng địa chỉ ô trong công thức để kết quả tự cập nhật khi dữ liệu đổi."],"Ô, địa chỉ ô, công thức, hàm"],
+["An toàn và ứng xử trên mạng",["Đặt mật khẩu mạnh: dài, kết hợp chữ hoa, chữ thường, số, kí hiệu.","Không chia sẻ thông tin cá nhân và mật khẩu cho người lạ.","Tôn trọng bản quyền; trích dẫn nguồn khi sử dụng thông tin."],"Mật khẩu mạnh, thông tin cá nhân, bản quyền"]],
+qs:[
+["Công thức trong bảng tính bắt đầu bằng kí hiệu nào?",["#","=","@","$"],1,"Phải gõ dấu = trước công thức."],
+["Hàm nào dùng để tính tổng?",["AVERAGE","MAX","SUM","COUNT"],2,"SUM cộng các giá trị trong vùng chọn."],
+["Ô nằm ở cột B, hàng 3 có địa chỉ là gì?",["3B","B3","B-3","C2"],1,"Viết cột trước, hàng sau."],
+["Kết quả của =AVERAGE(2,4,6) là?",["3","4","6","12"],1,"(2+4+6)/3 = 4."],
+["Đặc điểm của RAM là gì?",["Mất dữ liệu khi tắt máy","Lưu dữ liệu vĩnh viễn","Là thiết bị ra","Là thiết bị vào"],0,"RAM là bộ nhớ tạm thời khi máy hoạt động."],
+["Mật khẩu nào mạnh nhất?",["12345678","tên + ngày sinh","Hq7#mLp29!","matkhau"],2,"Dài, đa dạng kí tự, khó đoán."]],
+tl:[["Bảng điểm có điểm Toán ở B2, Văn ở C2. Viết công thức tính điểm trung bình hai môn.","Gợi ý: =AVERAGE(B2:C2) hoặc =(B2+C2)/2."],
+["Nêu 3 quy tắc để giữ an toàn khi dùng mạng xã hội.","Gợi ý: không chia sẻ thông tin cá nhân; không bấm đường dẫn lạ; báo người lớn khi gặp nội dung xấu."]]},
+8:{topics:[
+["Thông tin trên mạng",["Mạng thông tin toàn cầu (web) gồm các trang web liên kết với nhau.","URL là địa chỉ của một trang web; trình duyệt dùng để truy cập.","Tìm kiếm hiệu quả: dùng từ khoá cụ thể, kiểm tra nguồn tin."],"Web, URL, trình duyệt, từ khoá"],
+["Trình chiếu và soạn thảo",["Bài trình chiếu: ít chữ, rõ ý, có hình ảnh minh hoạ.","Chọn cỡ chữ đủ lớn, màu chữ tương phản với nền.","Hiệu ứng chỉ dùng vừa phải để làm nổi bật nội dung."],"Slide, bố cục, hiệu ứng, định dạng"],
+["Lập trình cơ bản",["Chương trình là dãy lệnh để máy tính thực hiện thuật toán.","Biến dùng để lưu giá trị có thể thay đổi.","Cấu trúc điều khiển: tuần tự, rẽ nhánh, lặp.","Gỡ lỗi là tìm và sửa lỗi trong chương trình."],"Biến, vòng lặp, rẽ nhánh, gỡ lỗi"]],
+qs:[
+["URL là gì?",["Địa chỉ của trang web","Một loại virus","Tên máy tính","Một phần mềm soạn thảo"],0,"Ví dụ: https://www.example.com."],
+["Biến trong chương trình dùng để làm gì?",["Trang trí giao diện","Lưu giá trị có thể thay đổi","Tắt chương trình","Kết nối mạng"],1,"Giá trị của biến có thể đổi trong lúc chạy."],
+["Khối “lặp lại 10 lần” thuộc cấu trúc nào?",["Tuần tự","Rẽ nhánh","Lặp","Nhập dữ liệu"],2,"Lặp giúp thực hiện lại một nhóm lệnh."],
+["Bài trình chiếu tốt nên như thế nào?",["Nhiều chữ nhỏ","Ít chữ, rõ ý, có hình minh hoạ","Nhiều màu sặc sỡ","Không cần hình"],1,"Ngắn gọn, dễ nhìn, dễ hiểu."],
+["Để tìm thông tin chính xác hơn nên làm gì?",["Dùng từ khoá cụ thể","Gõ một chữ duy nhất","Chỉ đọc tiêu đề","Tin mọi kết quả"],0,"Từ khoá cụ thể giúp thu hẹp kết quả."],
+["Gỡ lỗi (debug) là gì?",["Xoá chương trình","Tìm và sửa lỗi","Viết thêm lệnh","Tắt máy"],1,"Kiểm tra chương trình và sửa chỗ sai."]],
+tl:[["Mô tả thuật toán: nếu điểm ≥ 5 thì in “Đạt”, ngược lại in “Chưa đạt”.","Gợi ý: nhập điểm → nếu điểm ≥ 5 thì in “Đạt”, nếu không thì in “Chưa đạt”."],
+["Nêu 3 lỗi thường gặp khi làm bài trình chiếu.","Gợi ý: quá nhiều chữ, màu chữ khó đọc, hiệu ứng rối mắt."]]},
+9:{topics:[
+["Thiết bị thông minh và AI",["IoT (Internet vạn vật): các thiết bị kết nối Internet để thu thập và trao đổi dữ liệu.","Trí tuệ nhân tạo (AI) là hệ thống mô phỏng một số khả năng của con người như nhận dạng, dự đoán.","Cần kiểm chứng thông tin do AI tạo ra."],"IoT, AI, dữ liệu, kiểm chứng"],
+["Internet an toàn và pháp luật",["Lừa đảo trực tuyến (phishing): giả mạo để đánh cắp thông tin.","Bật xác thực hai yếu tố để tăng bảo mật tài khoản.","Tuân thủ pháp luật, tôn trọng bản quyền và quyền riêng tư."],"Phishing, xác thực hai yếu tố, bản quyền"],
+["Lập trình và hướng nghiệp",["Quy trình: xác định bài toán → thiết kế thuật toán → viết chương trình → kiểm thử, gỡ lỗi.","Chia bài toán lớn thành các bài toán nhỏ dễ giải quyết hơn.","Tìm hiểu các nghề liên quan đến công nghệ thông tin."],"Kiểm thử, gỡ lỗi, chia nhỏ bài toán, hướng nghiệp"]],
+qs:[
+["IoT là viết tắt của khái niệm nào?",["Internet vạn vật","Máy tính cá nhân","Mạng nội bộ","Phần mềm diệt virus"],0,"Internet of Things."],
+["Phishing là gì?",["Một trò chơi","Giả mạo để đánh cắp thông tin","Một loại bàn phím","Phần mềm soạn thảo"],1,"Kẻ xấu giả làm nơi đáng tin để lừa người dùng."],
+["Xác thực hai yếu tố giúp gì?",["Tăng bảo mật tài khoản","Tăng tốc độ mạng","Giảm dung lượng","Đổi màu giao diện"],0,"Cần thêm một lớp xác nhận ngoài mật khẩu."],
+["Nhận được đường dẫn lạ trong tin nhắn, em nên làm gì?",["Bấm ngay","Gửi cho bạn bè","Kiểm tra nguồn, hỏi người lớn","Nhập mật khẩu vào"],2,"Không bấm vội, tránh bị lừa đảo."],
+["Bước nào cần làm sau khi viết chương trình?",["Kiểm thử và gỡ lỗi","Xoá chương trình","Tắt máy","Không cần làm gì"],0,"Chạy thử để phát hiện và sửa lỗi."],
+["AI là gì?",["Hệ thống mô phỏng một số khả năng trí tuệ","Một loại ổ cứng","Một loại mạng dây","Phần mềm trình chiếu"],0,"Ví dụ: nhận dạng giọng nói, gợi ý nội dung."]],
+tl:[["Nêu 3 dấu hiệu của một tin nhắn lừa đảo.","Gợi ý: yêu cầu gấp, đòi thông tin cá nhân hay mật khẩu, đường dẫn lạ hoặc lời hứa trúng thưởng."],
+["Chia bài toán “quản lí điểm cả lớp” thành các bài toán nhỏ.","Gợi ý: nhập điểm từng bạn → tính trung bình → xếp loại → in danh sách."]]}
+};
+/* ===== Trạng thái ===== */
+let g=6,sec='kt';
+try{g=+localStorage.getItem('tin-grade')||6}catch(e){}
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const card=()=>el('div','card');
+/* ===== Các mục ===== */
+const V={};
+V.kt=()=>{const w=el('div');w.style.cssText='display:grid;gap:14px';
+ const c=card();c.append(el('h2',null,'Kiến thức cơ bản – Tin học '+g));
+ const s=document.createElement('input');s.type='search';s.placeholder='Tìm nhanh (ví dụ: bit, biến, SUM…)';s.setAttribute('aria-label','Tìm nhanh');c.append(s);
+ const ds=D[g].topics.map((t,i)=>{const d=el('details');if(i===0)d.open=true;d.append(el('summary',null,t[0]));const u=el('ul');t[1].forEach(p=>u.append(el('li',null,p)));d.append(u,el('div','f','Khái niệm: '+t[2]));c.append(d);return d});
+ s.oninput=()=>{const v=s.value.toLowerCase().trim();ds.forEach(d=>{const hit=!v||d.textContent.toLowerCase().includes(v);d.hidden=!hit;if(v&&hit)d.open=true})};
+ w.append(c,el('p','note','Nội dung tóm tắt theo chủ đề, mang tính tham khảo. Hãy đối chiếu với sách giáo khoa và hướng dẫn của giáo viên.'));return w};
+V.lt=()=>{const qs=shuf(D[g].qs);let sc=0,dn=0;
+ const c=card();c.append(el('h2',null,'Luyện tập trắc nghiệm – Tin học '+g),el('p','sub','Chọn đáp án để biết đúng sai ngay, có giải thích ngắn.'));
+ const bar=el('div');bar.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0';
+ const sd=el('b',null,'Điểm: 0/'+qs.length),re=el('button','primary','Làm đề mới (xáo trộn)');re.onclick=()=>show('lt');bar.append(sd,re);c.append(bar);
+ qs.forEach((q,i)=>{const f=el('fieldset');f.append(el('legend',null,'Câu '+(i+1)+'. '+q[0]));const ex=el('p','sol');ex.hidden=true;
+  q[1].forEach((o,j)=>{const lb=el('label','opt');const r=document.createElement('input');r.type='radio';r.name='q'+i;
+   r.onchange=()=>{if(f.dataset.d)return;f.dataset.d=1;f.querySelectorAll('input').forEach(x=>x.disabled=true);
+    f.querySelectorAll('.opt').forEach((l,k)=>{if(k===q[2])l.classList.add('ok');else if(k===j)l.classList.add('bad')});
+    if(j===q[2])sc++;dn++;ex.textContent=(j===q[2]?'Đúng. ':'Chưa đúng. ')+q[3];ex.hidden=false;
+    sd.textContent='Điểm: '+sc+'/'+qs.length+(dn===qs.length?(sc===qs.length?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')};
+   lb.append(r,document.createTextNode(String.fromCharCode(65+j)+'. '+o));f.append(lb)});
+  f.append(ex);c.append(f)});return c};
+V.tl=()=>{const c=card();c.append(el('h2',null,'Bài tập tự luận – Tin học '+g),el('p','sub','Hãy tự làm vào vở trước, sau đó mới xem gợi ý.'));
+ D[g].tl.forEach((x,i)=>{c.append(el('p',null,'<b>Bài '+(i+1)+'.</b> '+x[0]));const d=el('details');d.append(el('summary',null,'Xem gợi ý'),el('p','sol',x[1]));c.append(d)});return c};
+/* ===== Điều hướng ===== */
+const NAV=[['kt','Kiến thức'],['lt','Luyện tập'],['tl','Tự luận']];
+function show(k){sec=k;$('nv').querySelectorAll('button[data-k]').forEach(b=>{if(b.dataset.k===k)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+ const m=$('mn');m.innerHTML='';m.append(V[k]());window.scrollTo(0,0)}
+function buildNav(){const nv=$('nv');nv.innerHTML='';
+ [6,7,8,9].forEach(n=>{const b=el('button',null,'Lớp '+n);b.setAttribute('aria-pressed',n===g);b.onclick=()=>{g=n;try{localStorage.setItem('tin-grade',n)}catch(e){}buildNav();show(sec)};nv.append(b)});
+ NAV.forEach(([k,t])=>{const b=el('button',null,t);b.dataset.k=k;b.onclick=()=>show(k);nv.append(b)})}
+buildNav();show('kt');
+</script>
+</body>
+</html>
