@@ -60,6 +60,7 @@ function lesson(b,cb){
  const w=el('div');
  const u=el('ul');(b.tt||[]).forEach(t=>u.append(el('li',null,t)));w.append(u);
  if(b.kn)w.append(el('div','f','Khái niệm cần nhớ: '+b.kn));
+ if(b.vd)w.append(el('h4',null,'Ví dụ minh hoạ'),el('p',null,b.vd));
  if((b.tn||[]).length){w.append(el('h4',null,'Trắc nghiệm'));
   b.tn.forEach((q,i)=>{const f=el('fieldset');f.append(el('legend',null,'Câu '+(i+1)+'. '+q.q));const ex=el('p','sol');ex.hidden=true;
    const ord=q.o.map((_,i)=>i).sort(()=>Math.random()-.5);ord.forEach((oi,j)=>{const o=q.o[oi],lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
