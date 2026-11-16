@@ -62,10 +62,10 @@ function lesson(b){
  if(b.kn)w.append(el('div','f','Khái niệm cần nhớ: '+b.kn));
  if((b.tn||[]).length){w.append(el('h4',null,'Trắc nghiệm'));
   b.tn.forEach((q,i)=>{const f=el('fieldset');f.append(el('legend',null,'Câu '+(i+1)+'. '+q.q));const ex=el('p','sol');ex.hidden=true;
-   q.o.forEach((o,j)=>{const lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
+   const ord=q.o.map((_,i)=>i).sort(()=>Math.random()-.5);ord.forEach((oi,j)=>{const o=q.o[oi],lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
     r.onchange=()=>{if(f.dataset.d)return;f.dataset.d=1;f.querySelectorAll('input').forEach(x=>x.disabled=true);
-     f.querySelectorAll('.opt').forEach((l,k)=>{if(k===q.a)l.classList.add('ok');else if(k===j)l.classList.add('bad')});
-     ex.textContent=(j===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false};
+     f.querySelectorAll('.opt').forEach((l,k)=>{if(ord[k]===q.a)l.classList.add('ok');else if(k===j)l.classList.add('bad')});
+     ex.textContent=(oi===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false};
     lb.append(r,document.createTextNode(String.fromCharCode(65+j)+'. '+o));f.append(lb)});
    f.append(ex);w.append(f)})}
  if((b.tl||[]).length){w.append(el('h4',null,'Tự luận (tự làm vào vở trước, rồi xem gợi ý)'));
