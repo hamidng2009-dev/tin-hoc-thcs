@@ -56,7 +56,7 @@ const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=nu
 const cache={};let g=6;
 try{g=+localStorage.getItem('tin-grade')||6}catch(e){}
 async function load(n){if(n in cache)return cache[n];try{const r=await fetch('du-lieu/lop'+n+'.json',{cache:'no-cache'});if(!r.ok)throw 0;cache[n]=await r.json()}catch(e){cache[n]=null}return cache[n]}
-function lesson(b){
+function lesson(b,cb){
  const w=el('div');
  const u=el('ul');(b.tt||[]).forEach(t=>u.append(el('li',null,t)));w.append(u);
  if(b.kn)w.append(el('div','f','Khái niệm cần nhớ: '+b.kn));
@@ -65,15 +65,19 @@ function lesson(b){
    const ord=q.o.map((_,i)=>i).sort(()=>Math.random()-.5);ord.forEach((oi,j)=>{const o=q.o[oi],lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
     r.onchange=()=>{if(f.dataset.d)return;f.dataset.d=1;f.querySelectorAll('input').forEach(x=>x.disabled=true);
      f.querySelectorAll('.opt').forEach((l,k)=>{if(ord[k]===q.a)l.classList.add('ok');else if(k===j)l.classList.add('bad')});
-     ex.textContent=(oi===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false};
+     ex.textContent=(oi===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false;if(cb)cb(oi===q.a)};
     lb.append(r,document.createTextNode(String.fromCharCode(65+j)+'. '+o));f.append(lb)});
    f.append(ex);w.append(f)})}
  if((b.tl||[]).length){w.append(el('h4',null,'Tự luận (tự làm vào vở trước, rồi xem gợi ý)'));
   b.tl.forEach((x,i)=>{w.append(el('p',null,'<b>Bài '+(i+1)+'.</b> '+x[0]));const d=el('details');d.append(el('summary',null,'Xem gợi ý'),el('p','sol',x[1]));w.append(d)})}
  return w}
+function exam(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
+ const sc=el('p','note','Điểm trắc nghiệm: 0/'+n);
+ w.append(el('p','sub',e.tg||''),sc,lesson({tn:e.tn,tl:e.tl},c=>{k++;if(c)s++;sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}));return w}
 async function grade(){
  const m=$('mn');m.innerHTML='';const d=await load(g);
  if(!d){m.append(el('div','card','<h2>Lớp '+g+'</h2><p class="sub">Nội dung lớp này đang được cập nhật.</p>'));return}
+ if((d.de||[]).length){const ec=el('div','card');ec.append(el('h2',null,'Đề tham khảo'));d.de.forEach(e=>{const de=el('details');de.append(el('summary',null,e.ten),exam(e));ec.append(de)});m.append(ec)}
  d.chude.forEach((c,ci)=>{const cd=el('div','card');cd.append(el('h2',null,c.ten));
   c.bai.forEach((b,bi)=>{const de=el('details');if(ci===0&&bi===0)de.open=true;de.append(el('summary',null,'Bài '+b.so+'. '+b.ten),lesson(b));cd.append(de)});m.append(cd)});
  m.append(el('p','note','Nội dung tóm tắt mang tính tham khảo. Hãy đối chiếu với sách giáo khoa và hướng dẫn của giáo viên.'))}
