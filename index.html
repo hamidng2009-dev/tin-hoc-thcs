@@ -37,6 +37,7 @@ legend{font-weight:600;padding:0;margin-bottom:4px}
 .opt.ok{color:var(--ok);font-weight:600}.opt.bad{color:var(--bad);font-weight:600}
 .sol{color:var(--mute);margin:6px 0 0}
 .note{color:var(--mute);font-size:.9rem}
+.btnok{border-color:var(--ok);color:var(--ok);font-weight:600}.btnbad{border-color:var(--bad);color:var(--bad);font-weight:600}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -72,9 +73,28 @@ function lesson(b,cb){
  if((b.tl||[]).length){w.append(el('h4',null,'Tự luận (tự làm vào vở trước, rồi xem gợi ý)'));
   b.tl.forEach((x,i)=>{w.append(el('p',null,'<b>Bài '+(i+1)+'.</b> '+x[0]));const d=el('details');d.append(el('summary',null,'Xem gợi ý'),el('p','sol',x[1]));w.append(d)})}
  return w}
+function dsView(items){const w=el('div');w.append(el('h4',null,'Phần II. Đúng / Sai (mức thông hiểu)'));
+ items.forEach((it,i)=>{w.append(el('p',null,'<b>Câu '+(i+1)+'.</b> '+it.de));
+  it.y.forEach((y,j)=>{const r=el('div');r.style.cssText='margin:4px 0 12px';r.append(el('div',null,String.fromCharCode(97+j)+') '+y[0]));
+   const bar=el('div'),fb=el('div','sol');bar.style.cssText='display:flex;gap:8px;margin-top:4px';
+   [['Đúng',true],['Sai',false]].forEach(([t,v])=>{const b=el('button',null,t);b.onclick=()=>{if(bar.dataset.d)return;bar.dataset.d=1;const ok=v===y[1];b.classList.add(ok?'btnok':'btnbad');fb.textContent=(ok?'Đúng. ':'Chưa đúng. ')+(y[2]||'');fb.style.color=ok?'var(--ok)':'var(--bad)'};bar.append(b)});
+   r.append(bar,fb);w.append(r)})});return w}
+function tlnView(items){const w=el('div');w.append(el('h4',null,'Phần III. Trả lời ngắn (mức vận dụng)'));
+ const norm=x=>String(x).toLowerCase().replace(/\s+/g,'').replace(/,/g,'.').replace(/−/g,'-');
+ items.forEach((it,i)=>{w.append(el('p',null,'<b>Câu '+(i+1)+'.</b> '+it.q));
+  const row=el('div'),inp=document.createElement('input'),b=el('button',null,'Kiểm tra'),fb=el('div','sol');
+  row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center';inp.type='text';inp.setAttribute('aria-label','Đáp án câu '+(i+1));
+  inp.style.cssText='font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:170px';
+  b.onclick=()=>{const v=norm(inp.value);if(!v)return;const ok=[it.a].concat(it.k||[]).some(x=>norm(x)===v);fb.textContent=(ok?'Đúng. ':'Chưa đúng. Đáp án: '+it.a+'. ')+(it.g||'');fb.style.color=ok?'var(--ok)':'var(--bad)'};
+  inp.onkeydown=e=>{if(e.key==='Enter')b.click()};row.append(inp,b);w.append(row,fb)});return w}
 function exam(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
  const sc=el('p','note','Điểm trắc nghiệm: 0/'+n);
- w.append(el('p','sub',e.tg||''),sc,lesson({tn:e.tn,tl:e.tl},c=>{k++;if(c)s++;sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}));return w}
+ w.append(el('p','sub',e.tg||''));
+ if(n){w.append(sc,lesson({tn:e.tn},c=>{k++;if(c)s++;sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}))}
+ if((e.ds||[]).length)w.append(dsView(e.ds));
+ if((e.tln||[]).length)w.append(tlnView(e.tln));
+ if((e.tl||[]).length)w.append(lesson({tl:e.tl}));
+ return w}
 async function grade(){
  const m=$('mn');m.innerHTML='';const d=await load(g);
  if(!d){m.append(el('div','card','<h2>Lớp '+g+'</h2><p class="sub">Nội dung lớp này đang được cập nhật.</p>'));return}
