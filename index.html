@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tin học THCS – Học dễ hiểu</title>
+<meta name="description" content="Tóm tắt bài, khái niệm, ví dụ, trắc nghiệm, tự luận và đề tham khảo Tin học lớp 6, 7, 8, 9 (Kết nối tri thức với cuộc sống).">
+<meta name="theme-color" content="#4b5bd7">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💻%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap">
 <style>
 :root{--bg:#f1f3fb;--card:#fff;--ink:#1b2140;--mute:#5d6485;--line:#d8dcf0;--accent:#4b5bd7;--accent-ink:#fff;--soft:#e6e9fb;--ok:#1f9d57;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -45,6 +48,7 @@ legend{font-weight:600;padding:0;margin-bottom:4px}
 <header>
   <h1>Tin học THCS – Học dễ hiểu</h1>
   <p class="sub">Tóm tắt từng bài, khái niệm cần nhớ, trắc nghiệm và tự luận cho Tin học lớp 6, 7, 8, 9 (sách Kết nối tri thức với cuộc sống).</p>
+  <p class="sub">Cách dùng: chọn lớp → mở từng bài để đọc tóm tắt, xem ví dụ và làm câu hỏi → thử các đề tham khảo ở đầu trang → gõ từ khoá vào ô tìm kiếm để tra nhanh.</p>
 </header>
 <nav aria-label="Chọn lớp"><div id="nv"></div></nav>
 <main>
@@ -87,7 +91,7 @@ function tlnView(items){const w=el('div');w.append(el('h4',null,'Phần III. Tr�
   inp.style.cssText='font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:170px';
   b.onclick=()=>{const v=norm(inp.value);if(!v)return;const ok=[it.a].concat(it.k||[]).some(x=>norm(x)===v);fb.textContent=(ok?'Đúng. ':'Chưa đúng. Đáp án: '+it.a+'. ')+(it.g||'');fb.style.color=ok?'var(--ok)':'var(--bad)'};
   inp.onkeydown=e=>{if(e.key==='Enter')b.click()};row.append(inp,b);w.append(row,fb)});return w}
-function exam(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
+function examBody(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
  const sc=el('p','note','Điểm trắc nghiệm: 0/'+n);
  w.append(el('p','sub',e.tg||''));
  if(n){w.append(sc,lesson({tn:e.tn},c=>{k++;if(c)s++;sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}))}
@@ -95,12 +99,21 @@ function exam(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
  if((e.tln||[]).length)w.append(tlnView(e.tln));
  if((e.tl||[]).length)w.append(lesson({tl:e.tl}));
  return w}
+const getDone=()=>{try{return JSON.parse(localStorage.getItem('tin-done')||'{}')}catch(e){return{}}};
+const setDone=o=>{try{localStorage.setItem('tin-done',JSON.stringify(o))}catch(e){}};
+function exam(e){const box=el('div'),draw=()=>{box.innerHTML='';const r=el('button',null,'Làm lại đề (xáo trộn đáp án)');r.onclick=draw;box.append(examBody(e),r)};draw();return box}
 async function grade(){
  const m=$('mn');m.innerHTML='';const d=await load(g);
  if(!d){m.append(el('div','card','<h2>Lớp '+g+'</h2><p class="sub">Nội dung lớp này đang được cập nhật.</p>'));return}
+ const total=d.chude.reduce((a,c)=>a+c.bai.length,0),pg=el('p','sub');
+ const prog=()=>{const dd=getDone();let k=0;d.chude.forEach(c=>c.bai.forEach(b=>{if(dd[g+':'+b.so])k++}));pg.textContent='Đã học '+k+'/'+total+' bài (bạn tự đánh dấu trong từng bài, lưu trên thiết bị này).'};
+ m.append(pg);prog();
  if((d.de||[]).length){const ec=el('div','card');ec.append(el('h2',null,'Đề tham khảo'));d.de.forEach(e=>{const de=el('details');de.append(el('summary',null,e.ten),exam(e));ec.append(de)});m.append(ec)}
  d.chude.forEach((c,ci)=>{const cd=el('div','card');cd.append(el('h2',null,c.ten));
-  c.bai.forEach((b,bi)=>{const de=el('details');if(ci===0&&bi===0)de.open=true;de.append(el('summary',null,'Bài '+b.so+'. '+b.ten),lesson(b));cd.append(de)});m.append(cd)});
+  c.bai.forEach((b,bi)=>{const de=el('details');if(ci===0&&bi===0)de.open=true;const key=g+':'+b.so,ttl='Bài '+b.so+'. '+b.ten,sm=el('summary',null,(getDone()[key]?'✓ ':'')+ttl),mk=el('button',null,getDone()[key]?'Bỏ đánh dấu đã học':'Đánh dấu đã học');
+   mk.style.margin='8px 0';
+   mk.onclick=()=>{const dd=getDone();if(dd[key])delete dd[key];else dd[key]=1;setDone(dd);sm.textContent=(dd[key]?'✓ ':'')+ttl;mk.textContent=dd[key]?'Bỏ đánh dấu đã học':'Đánh dấu đã học';prog()};
+   de.append(sm,mk,lesson(b));cd.append(de)});m.append(cd)});
  m.append(el('p','note','Nội dung tóm tắt mang tính tham khảo. Hãy đối chiếu với sách giáo khoa và hướng dẫn của giáo viên.'))}
 async function search(q){
  const m=$('mn');m.innerHTML='';const all=await Promise.all([6,7,8,9].map(load));let n=0;const box=el('div','card');box.append(el('h2',null,'Kết quả cho “'+q.replace(/[<>&]/g,'')+'”'));
