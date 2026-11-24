@@ -50,7 +50,7 @@ legend{font-weight:600;padding:0;margin-bottom:4px}
   <p class="sub">Tóm tắt từng bài, khái niệm cần nhớ, trắc nghiệm và tự luận cho Tin học lớp 6, 7, 8, 9 (sách Kết nối tri thức với cuộc sống).</p>
   <p class="sub">Cách dùng: chọn lớp → mở từng bài để đọc tóm tắt, xem ví dụ và làm câu hỏi → thử các đề tham khảo ở đầu trang → gõ từ khoá vào ô tìm kiếm để tra nhanh.</p>
 </header>
-<nav aria-label="Chọn lớp"><div id="nv"></div></nav>
+<nav aria-label="Chọn lớp và chế độ"><div id="nv"></div><div id="vw" style="margin-top:6px"></div></nav>
 <main>
   <input type="search" id="s" placeholder="Tìm trong cả bốn lớp (ví dụ: bit, thư điện tử, thuật toán…)" aria-label="Tìm kiếm">
   <div id="mn"></div>
@@ -71,7 +71,7 @@ function lesson(b,cb){
    const ord=q.o.map((_,i)=>i).sort(()=>Math.random()-.5);ord.forEach((oi,j)=>{const o=q.o[oi],lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
     r.onchange=()=>{if(f.dataset.d)return;f.dataset.d=1;f.querySelectorAll('input').forEach(x=>x.disabled=true);
      f.querySelectorAll('.opt').forEach((l,k)=>{if(ord[k]===q.a)l.classList.add('ok');else if(k===j)l.classList.add('bad')});
-     ex.textContent=(oi===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false;if(cb)cb(oi===q.a)};
+     ex.textContent=(oi===q.a?'Đúng. ':'Chưa đúng. ')+(q.g||'');ex.hidden=false;track(q,oi===q.a,b._l||g);if(cb)cb(oi===q.a,q)};
     lb.append(r,document.createTextNode(String.fromCharCode(65+j)+'. '+o));f.append(lb)});
    f.append(ex);w.append(f)})}
  if((b.tl||[]).length){w.append(el('h4',null,'Tự luận (tự làm vào vở trước, rồi xem gợi ý)'));
@@ -94,7 +94,7 @@ function tlnView(items){const w=el('div');w.append(el('h4',null,'Phần III. Tr�
 function examBody(e){const w=el('div'),n=(e.tn||[]).length;let s=0,k=0;
  const sc=el('p','note','Điểm trắc nghiệm: 0/'+n);
  w.append(el('p','sub',e.tg||''));
- if(n){w.append(sc,lesson({tn:e.tn},c=>{k++;if(c)s++;sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}))}
+ if(n){w.append(sc,lesson({tn:e.tn},c=>{k++;if(c)s++;if(k===n){const h=jget(HK)||[];h.push({t:Date.now(),l:g,ten:e.ten,s:s,n:n});jset(HK,h.slice(-200))}sc.textContent='Điểm trắc nghiệm: '+s+'/'+n+(k===n?(s===n?' – Xuất sắc!':' – Hoàn thành, hãy xem lại các câu sai.'):'')}))}
  if((e.ds||[]).length)w.append(dsView(e.ds));
  if((e.tln||[]).length)w.append(tlnView(e.tln));
  if((e.tl||[]).length)w.append(lesson({tl:e.tl}));
@@ -117,11 +117,66 @@ async function grade(){
  m.append(el('p','note','Nội dung tóm tắt mang tính tham khảo. Hãy đối chiếu với sách giáo khoa và hướng dẫn của giáo viên.'))}
 async function search(q){
  const m=$('mn');m.innerHTML='';const all=await Promise.all([6,7,8,9].map(load));let n=0;const box=el('div','card');box.append(el('h2',null,'Kết quả cho “'+q.replace(/[<>&]/g,'')+'”'));
- all.forEach((d,i)=>{if(!d)return;d.chude.forEach(c=>c.bai.forEach(b=>{const t=(b.ten+' '+(b.tt||[]).join(' ')+' '+(b.kn||'')).toLowerCase();if(t.includes(q)){n++;const de=el('details');de.append(el('summary',null,'Lớp '+[6,7,8,9][i]+' – Bài '+b.so+'. '+b.ten),lesson(b));box.append(de)}}))});
+ all.forEach((d,i)=>{if(!d)return;d.chude.forEach(c=>c.bai.forEach(b=>{const t=(b.ten+' '+(b.tt||[]).join(' ')+' '+(b.kn||'')).toLowerCase();if(t.includes(q)){n++;const de=el('details');de.append(el('summary',null,'Lớp '+[6,7,8,9][i]+' – Bài '+b.so+'. '+b.ten),lesson(Object.assign({_l:[6,7,8,9][i]},b)));box.append(de)}}))});
  if(!n)box.append(el('p','sub','Không tìm thấy kết quả. Thử từ khoá khác.'));m.append(box)}
-function nav(){const nv=$('nv');nv.innerHTML='';[6,7,8,9].forEach(n=>{const b=el('button',null,'Lớp '+n);b.setAttribute('aria-pressed',n===g);b.onclick=()=>{g=n;try{localStorage.setItem('tin-grade',n)}catch(e){}$('s').value='';nav();grade()};nv.append(b)})}
+function nav(){const nv=$('nv');nv.innerHTML='';[6,7,8,9].forEach(n=>{const b=el('button',null,'Lớp '+n);b.setAttribute('aria-pressed',n===g);b.onclick=()=>{g=n;try{localStorage.setItem('tin-grade',n)}catch(e){}$('s').value='';nav();show()};nv.append(b)})}
+const WK='tin-wrong',HK='tin-hist',FK='tin-fc';
+const jget=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}};
+const jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const qkey=q=>q.q+'|'+q.o[q.a];
+function track(q,ok,l){const w=jget(WK)||{},k=qkey(q);if(ok){if(w[k]){delete w[k];jset(WK,w)}}else{w[k]={q:q.q,o:q.o,a:q.a,g:q.g||'',l:q.l||l,t:Date.now()};jset(WK,w)}}
+let view='bai',GL=null;
+const LOPS=[[0,'Tất cả'],[6,'Lớp 6'],[7,'Lớp 7'],[8,'Lớp 8'],[9,'Lớp 9']];
+function lopBar(cur,fn){const b=el('div');b.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:8px 0';LOPS.forEach(([n,t])=>{const x=el('button',null,t);x.setAttribute('aria-pressed',n===cur);x.onclick=()=>fn(n);b.append(x)});return b}
+async function loadGL(){if(GL)return GL;try{const r=await fetch('du-lieu/thuat-ngu.json',{cache:'no-cache'});if(!r.ok)throw 0;GL=(await r.json()).tn||[]}catch(e){GL=[]}return GL}
+async function glossary(){const m=$('mn');m.innerHTML='';const L=await loadGL();let f=g,q='';
+ const c=el('div','card'),inp=document.createElement('input'),list=el('div'),bar=el('div');
+ inp.type='search';inp.placeholder='Tìm thuật ngữ…';inp.setAttribute('aria-label','Tìm thuật ngữ');inp.style.cssText='width:100%;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-top:6px';
+ c.append(el('h2',null,'Bảng thuật ngữ A–Z'),el('p','sub','Các thuật ngữ trong từng bài, sắp theo chữ cái.'),bar,inp,list);m.append(c);
+ const draw=()=>{bar.innerHTML='';bar.append(lopBar(f,n=>{f=n;draw()}));list.innerHTML='';
+  const it=L.filter(x=>(!f||x.l===f)&&(!q||(x.t+' '+x.g).toLowerCase().includes(q))).sort((a,b)=>a.t.localeCompare(b.t,'vi'));
+  if(!it.length){list.append(el('p','sub','Chưa có thuật ngữ phù hợp (nội dung đang được bổ sung dần).'));return}
+  let cur='';it.forEach(x=>{const ch=x.t[0].toUpperCase();if(ch!==cur){cur=ch;list.append(el('h3',null,ch))}
+   const d=el('div');d.style.margin='6px 0 12px';d.append(el('b',null,x.t),el('span','sub',' – Lớp '+x.l+', Bài '+x.b),el('div',null,x.g));list.append(d)})};
+ inp.oninput=()=>{q=inp.value.toLowerCase().trim();draw()};draw()}
+async function cards(){const m=$('mn');m.innerHTML='';const L=await loadGL();let f=g,only=true,i=0,flip=false;
+ const LS=L.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+ const c=el('div','card'),bar=el('div'),info=el('p','sub'),face=el('div'),act=el('div');
+ act.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';
+ c.append(el('h2',null,'Thẻ ghi nhớ'),el('p','sub','Bấm vào thẻ để lật. Chọn “Đã nhớ” hoặc “Ôn lại”; thẻ đã nhớ sẽ được ẩn đi.'),bar,info,face,act);m.append(c);
+ const key=x=>x.l+':'+x.t,deck=()=>{const s=jget(FK)||{};return LS.filter(x=>(!f||x.l===f)&&(!only||s[key(x)]!=='nho'))};
+ const mark=(x,v)=>{const s=jget(FK)||{};s[key(x)]=v;jset(FK,s);flip=false;if(v==='on'||!only)i++;draw()};
+ const draw=()=>{bar.innerHTML='';bar.append(lopBar(f,n=>{f=n;i=0;flip=false;draw()}));
+  const t=el('button',null,only?'Đang xem: thẻ chưa nhớ':'Đang xem: tất cả thẻ');t.onclick=()=>{only=!only;i=0;flip=false;draw()};bar.append(t);
+  const D=deck();face.innerHTML='';act.innerHTML='';
+  if(!D.length){info.textContent=L.length?'Không còn thẻ cần ôn ở phạm vi này. 🎉':'Chưa có thẻ nào (nội dung đang được bổ sung dần).';return}
+  if(i>=D.length)i=0;const x=D[i];info.textContent='Thẻ '+(i+1)+'/'+D.length+' · Lớp '+x.l+', Bài '+x.b;
+  face.style.cssText='border:1px solid var(--line);border-radius:14px;padding:28px 18px;text-align:center;cursor:pointer;background:var(--soft);min-height:120px;display:flex;align-items:center;justify-content:center;font-size:'+(flip?'1.05rem':'1.4rem')+';font-weight:'+(flip?'400':'800');
+  face.textContent=flip?x.g:x.t;face.setAttribute('role','button');face.setAttribute('tabindex','0');face.onclick=()=>{flip=!flip;draw()};face.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip=!flip;draw()}};
+  const b1=el('button',null,'Lật thẻ'),b2=el('button',null,'✅ Đã nhớ'),b3=el('button',null,'🔁 Ôn lại');b2.setAttribute('aria-pressed','true');b1.onclick=face.onclick;b2.onclick=()=>mark(x,'nho');b3.onclick=()=>mark(x,'on');act.append(b1,b2,b3)};
+ draw()}
+function review(){const m=$('mn');m.innerHTML='';let f=0;const c=el('div','card'),bar=el('div'),box=el('div');
+ c.append(el('h2',null,'Câu cần ôn lại'),el('p','sub','Những câu trắc nghiệm em từng chọn sai. Làm đúng lại thì câu sẽ tự biến mất khỏi danh sách.'),bar,box);m.append(c);
+ const draw=()=>{bar.innerHTML='';bar.append(lopBar(f,n=>{f=n;draw()}));box.innerHTML='';
+  const all=Object.values(jget(WK)||{}).sort((a,b)=>b.t-a.t),it=all.filter(x=>!f||x.l===f);
+  if(!it.length){box.append(el('p','sub',all.length?'Không có câu cần ôn ở lớp này.':'Chưa có câu nào cần ôn. Khi em chọn sai một câu trắc nghiệm, câu đó sẽ xuất hiện ở đây.'));return}
+  box.append(el('p','sub','Có '+it.length+' câu cần ôn'+(it.length>20?' (hiển thị 20 câu mới nhất)':'')+'.'),lesson({tn:it.slice(0,20)}));
+  const clr=el('button',null,'Xoá danh sách này');let ask=false;clr.onclick=()=>{if(!ask){ask=true;clr.textContent='Bấm lần nữa để xác nhận xoá';return}const w=jget(WK)||{};it.forEach(x=>delete w[qkey(x)]);jset(WK,w);draw()};box.append(clr)};
+ draw()}
+function histView(){const m=$('mn');m.innerHTML='';const h=(jget(HK)||[]).slice().reverse(),c=el('div','card');
+ c.append(el('h2',null,'Lịch sử điểm'),el('p','sub','Điểm phần trắc nghiệm của các lần làm đề, lưu trên thiết bị này.'));m.append(c);
+ if(!h.length){c.append(el('p','sub','Chưa có lần làm đề nào. Hãy làm một đề tham khảo và trả lời hết các câu trắc nghiệm.'));return}
+ const avg=Math.round(h.reduce((a,x)=>a+x.s/x.n,0)/h.length*100);
+ c.append(el('p',null,'<b>'+h.length+' lần làm đề · điểm trung bình '+avg+'%</b>'));
+ h.slice(0,40).forEach(x=>{const r=el('div'),p=Math.round(x.s/x.n*100);r.style.cssText='border-top:1px solid var(--line);padding:8px 0';
+  r.append(el('div',null,'<b>'+x.s+'/'+x.n+' ('+p+'%)</b> – Lớp '+x.l+' – '+x.ten),el('div','sub',new Date(x.t).toLocaleString('vi-VN')));
+  const bar=el('div'),fill=el('div');bar.style.cssText='background:var(--soft);border-radius:6px;height:8px;margin-top:4px';fill.style.cssText='height:8px;border-radius:6px;background:var(--accent);width:'+p+'%';bar.append(fill);r.append(bar);c.append(r)});
+ const clr=el('button',null,'Xoá lịch sử');clr.style.marginTop='12px';let ask=false;clr.onclick=()=>{if(!ask){ask=true;clr.textContent='Bấm lần nữa để xác nhận xoá';return}jset(HK,[]);histView()};c.append(clr)}
+const VIEWS=[['bai','📘 Bài học'],['tu','📖 Thuật ngữ'],['the','🗂️ Thẻ ghi nhớ'],['on','🔁 Câu cần ôn'],['ls','📈 Lịch sử điểm']];
+function vnav(){const v=$('vw');v.innerHTML='';VIEWS.forEach(([k,t])=>{const b=el('button',null,t);b.setAttribute('aria-pressed',k===view);b.onclick=()=>{view=k;$('s').value='';vnav();show()};v.append(b)})}
+function show(){$('s').hidden=view!=='bai';({bai:grade,tu:glossary,the:cards,on:review,ls:histView})[view]()}
 let tm;$('s').oninput=e=>{clearTimeout(tm);const v=e.target.value.toLowerCase().trim();tm=setTimeout(()=>v.length>=2?search(v):grade(),250)};
-nav();grade();
+nav();vnav();show();
 </script>
 </body>
 </html>
