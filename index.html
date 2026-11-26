@@ -41,6 +41,7 @@ legend{font-weight:600;padding:0;margin-bottom:4px}
 .sol{color:var(--mute);margin:6px 0 0}
 .note{color:var(--mute);font-size:.9rem}
 .btnok{border-color:var(--ok);color:var(--ok);font-weight:600}.btnbad{border-color:var(--bad);color:var(--bad);font-weight:600}
+.sv-b{fill:var(--soft);stroke:var(--accent);stroke-width:1.5}.sv-h{fill:var(--accent);stroke:var(--accent);stroke-width:1.5}.sv-m{fill:var(--accent);fill-opacity:.3;stroke:var(--accent);stroke-width:1.5}.sv-c{fill:var(--card);stroke:var(--line);stroke-width:1}.sv-l{fill:none;stroke:var(--mute);stroke-width:1.5}.sv-t{fill:var(--ink)}.sv-th{fill:var(--accent-ink)}figure{margin:6px 0}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -66,6 +67,7 @@ function lesson(b,cb){
  const u=el('ul');(b.tt||[]).forEach(t=>u.append(el('li',null,t)));w.append(u);
  if(b.kn)w.append(el('div','f','Khái niệm cần nhớ: '+b.kn));
  if(b.vd)w.append(el('h4',null,'Ví dụ minh hoạ'),el('p',null,b.vd));
+ (HM[(b._l||g)+':'+b.so]||[]).forEach(h=>{w.append(el('h4',null,'Hình minh hoạ'));const f=el('figure');f.innerHTML=h.svg+'<figcaption class="sub">'+h.mt+'</figcaption>';w.append(f)});
  if((b.tn||[]).length){w.append(el('h4',null,'Trắc nghiệm'));
   b.tn.forEach((q,i)=>{const f=el('fieldset');f.append(el('legend',null,'Câu '+(i+1)+'. '+q.q));const ex=el('p','sol');ex.hidden=true;
    const ord=q.o.map((_,i)=>i).sort(()=>Math.random()-.5);ord.forEach((oi,j)=>{const o=q.o[oi],lb=el('label','opt'),r=document.createElement('input');r.type='radio';r.name='q'+Math.random();
@@ -103,7 +105,7 @@ const getDone=()=>{try{return JSON.parse(localStorage.getItem('tin-done')||'{}')
 const setDone=o=>{try{localStorage.setItem('tin-done',JSON.stringify(o))}catch(e){}};
 function exam(e){const box=el('div'),draw=()=>{box.innerHTML='';const r=el('button',null,'Làm lại đề (xáo trộn đáp án)');r.onclick=draw;box.append(examBody(e),r)};draw();return box}
 async function grade(){
- const m=$('mn');m.innerHTML='';const d=await load(g);
+ const m=$('mn');m.innerHTML='';const d=await load(g);await loadHM();
  if(!d){m.append(el('div','card','<h2>Lớp '+g+'</h2><p class="sub">Nội dung lớp này đang được cập nhật.</p>'));return}
  const total=d.chude.reduce((a,c)=>a+c.bai.length,0),pg=el('p','sub');
  const prog=()=>{const dd=getDone();let k=0;d.chude.forEach(c=>c.bai.forEach(b=>{if(dd[g+':'+b.so])k++}));pg.textContent='Đã học '+k+'/'+total+' bài (bạn tự đánh dấu trong từng bài, lưu trên thiết bị này).'};
@@ -116,7 +118,7 @@ async function grade(){
    de.append(sm,mk,lesson(b));cd.append(de)});m.append(cd)});
  m.append(el('p','note','Nội dung tóm tắt mang tính tham khảo. Hãy đối chiếu với sách giáo khoa và hướng dẫn của giáo viên.'))}
 async function search(q){
- const m=$('mn');m.innerHTML='';const all=await Promise.all([6,7,8,9].map(load));let n=0;const box=el('div','card');box.append(el('h2',null,'Kết quả cho “'+q.replace(/[<>&]/g,'')+'”'));
+ const m=$('mn');m.innerHTML='';await loadHM();const all=await Promise.all([6,7,8,9].map(load));let n=0;const box=el('div','card');box.append(el('h2',null,'Kết quả cho “'+q.replace(/[<>&]/g,'')+'”'));
  all.forEach((d,i)=>{if(!d)return;d.chude.forEach(c=>c.bai.forEach(b=>{const t=(b.ten+' '+(b.tt||[]).join(' ')+' '+(b.kn||'')).toLowerCase();if(t.includes(q)){n++;const de=el('details');de.append(el('summary',null,'Lớp '+[6,7,8,9][i]+' – Bài '+b.so+'. '+b.ten),lesson(Object.assign({_l:[6,7,8,9][i]},b)));box.append(de)}}))});
  if(!n)box.append(el('p','sub','Không tìm thấy kết quả. Thử từ khoá khác.'));m.append(box)}
 function nav(){const nv=$('nv');nv.innerHTML='';[6,7,8,9].forEach(n=>{const b=el('button',null,'Lớp '+n);b.setAttribute('aria-pressed',n===g);b.onclick=()=>{g=n;try{localStorage.setItem('tin-grade',n)}catch(e){}$('s').value='';nav();show()};nv.append(b)})}
@@ -125,7 +127,26 @@ const jget=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){r
 const jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const qkey=q=>q.q+'|'+q.o[q.a];
 function track(q,ok,l){const w=jget(WK)||{},k=qkey(q);if(ok){if(w[k]){delete w[k];jset(WK,w)}}else{w[k]={q:q.q,o:q.o,a:q.a,g:q.g||'',l:q.l||l,t:Date.now()};jset(WK,w)}}
-let view='bai',GL=null;
+let view='bai',GL=null,HM={},HMD=0,TH=null;
+async function loadHM(){if(HMD)return;HMD=1;try{const r=await fetch('du-lieu/hinh.json',{cache:'no-cache'});if(!r.ok)throw 0;((await r.json()).h||[]).forEach(x=>{const k=x.l+':'+x.b;(HM[k]=HM[k]||[]).push(x)})}catch(e){}}
+async function loadTH(){if(TH)return TH;try{const r=await fetch('du-lieu/thuc-hanh.json',{cache:'no-cache'});if(!r.ok)throw 0;TH=(await r.json()).th||[]}catch(e){TH=[]}return TH}
+async function practice(){const m=$('mn');m.innerHTML='';const L=await loadTH();let f=g;
+ const c=el('div','card'),bar=el('div'),box=el('div');
+ c.append(el('h2',null,'Bài thực hành từng bước'),el('p','sub','Làm trên máy tính theo từng bước và tick vào ô khi xong; cuối bài tự kiểm tra kết quả. Tiến độ lưu trên thiết bị này.'),bar,box);m.append(c);
+ const draw=()=>{bar.innerHTML='';bar.append(lopBar(f,n=>{f=n;draw()}));box.innerHTML='';
+  const it=L.filter(x=>!f||x.l===f);if(!it.length){box.append(el('p','sub','Chưa có bài thực hành cho lớp này (đang được bổ sung dần).'));return}
+  it.forEach(x=>{const de=el('details'),sm=el('summary',null,''),w=el('div');
+   const cnt=()=>{const o=(jget('tin-th')||{})[x.id]||{s:[],k:[]};return[o.s.length+o.k.length,x.buoc.length+x.kt.length]};
+   const upd=()=>{const[n,N]=cnt();sm.textContent=(n===N?'✅ ':'')+'Lớp '+x.l+' – '+x.ten+' ('+n+'/'+N+')'};
+   const mk=(arr,key,title)=>{w.append(el('h4',null,title));const o0=(jget('tin-th')||{})[x.id]||{s:[],k:[]};
+    arr.forEach((t,i)=>{const lb=el('label','opt'),cb=document.createElement('input');cb.type='checkbox';cb.checked=o0[key].indexOf(i)>=0;
+     cb.onchange=()=>{const st=jget('tin-th')||{},o=st[x.id]||{s:[],k:[]},a=o[key].filter(v=>v!==i);if(cb.checked)a.push(i);o[key]=a;st[x.id]=o;jset('tin-th',st);upd()};
+     lb.append(cb,document.createTextNode((key==='s'?(i+1)+'. ':'')+t));w.append(lb)})};
+   w.append(el('p',null,'<b>Mục tiêu:</b> '+x.muc));w.append(el('h4',null,'Cần chuẩn bị'));const u=el('ul');x.cb.forEach(t=>u.append(el('li',null,t)));w.append(u);
+   mk(x.buoc,'s','Các bước thực hiện');mk(x.kt,'k','Tự kiểm tra kết quả');w.append(el('p','sol','Lỗi thường gặp: '+x.loi));
+   const rs=el('button',null,'Làm lại (bỏ chọn tất cả)');rs.onclick=()=>{const st=jget('tin-th')||{};delete st[x.id];jset('tin-th',st);draw()};w.append(rs);
+   upd();de.append(sm,w);box.append(de)})};
+ draw()}
 const LOPS=[[0,'Tất cả'],[6,'Lớp 6'],[7,'Lớp 7'],[8,'Lớp 8'],[9,'Lớp 9']];
 function lopBar(cur,fn){const b=el('div');b.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:8px 0';LOPS.forEach(([n,t])=>{const x=el('button',null,t);x.setAttribute('aria-pressed',n===cur);x.onclick=()=>fn(n);b.append(x)});return b}
 async function loadGL(){if(GL)return GL;try{const r=await fetch('du-lieu/thuat-ngu.json',{cache:'no-cache'});if(!r.ok)throw 0;GL=(await r.json()).tn||[]}catch(e){GL=[]}return GL}
@@ -172,9 +193,9 @@ function histView(){const m=$('mn');m.innerHTML='';const h=(jget(HK)||[]).slice(
   r.append(el('div',null,'<b>'+x.s+'/'+x.n+' ('+p+'%)</b> – Lớp '+x.l+' – '+x.ten),el('div','sub',new Date(x.t).toLocaleString('vi-VN')));
   const bar=el('div'),fill=el('div');bar.style.cssText='background:var(--soft);border-radius:6px;height:8px;margin-top:4px';fill.style.cssText='height:8px;border-radius:6px;background:var(--accent);width:'+p+'%';bar.append(fill);r.append(bar);c.append(r)});
  const clr=el('button',null,'Xoá lịch sử');clr.style.marginTop='12px';let ask=false;clr.onclick=()=>{if(!ask){ask=true;clr.textContent='Bấm lần nữa để xác nhận xoá';return}jset(HK,[]);histView()};c.append(clr)}
-const VIEWS=[['bai','📘 Bài học'],['tu','📖 Thuật ngữ'],['the','🗂️ Thẻ ghi nhớ'],['on','🔁 Câu cần ôn'],['ls','📈 Lịch sử điểm']];
+const VIEWS=[['bai','📘 Bài học'],['th','🛠️ Thực hành'],['tu','📖 Thuật ngữ'],['the','🗂️ Thẻ ghi nhớ'],['on','🔁 Câu cần ôn'],['ls','📈 Lịch sử điểm']];
 function vnav(){const v=$('vw');v.innerHTML='';VIEWS.forEach(([k,t])=>{const b=el('button',null,t);b.setAttribute('aria-pressed',k===view);b.onclick=()=>{view=k;$('s').value='';vnav();show()};v.append(b)})}
-function show(){$('s').hidden=view!=='bai';({bai:grade,tu:glossary,the:cards,on:review,ls:histView})[view]()}
+function show(){$('s').hidden=view!=='bai';({bai:grade,th:practice,tu:glossary,the:cards,on:review,ls:histView})[view]()}
 let tm;$('s').oninput=e=>{clearTimeout(tm);const v=e.target.value.toLowerCase().trim();tm=setTimeout(()=>v.length>=2?search(v):grade(),250)};
 nav();vnav();show();
 </script>
